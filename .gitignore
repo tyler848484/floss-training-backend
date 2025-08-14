@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.env
+.env*
+venv/
+ENV/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Database
+*.sqlite3
+*.db
+
+# Logs
+*.log
+
+# Node
+node_modules/
+
+# Coverage
+htmlcov/
+.coverage
+
+# Migrations
+migrations/
+
+# Test
+*.pytest_cache/
+
+# Others
+*.bak
+*.swp
+*.tmp
+
+# Ignore local files
+local_settings.py
