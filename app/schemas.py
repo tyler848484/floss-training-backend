@@ -59,14 +59,17 @@ class BookingBase(BaseModel):
     paid: Optional[bool] = False
 
 class BookingCreate(BookingBase):
-    parent_id: int
     session_id: int
     child_ids: List[int]
+    description: Optional[str] = None
+    location: str
 
 class Booking(BookingBase):
     id: int
     parent_id: int
     session_id: int
+    description: Optional[str] = None
+    location: str
     class Config:
         orm_mode = True
 
@@ -78,16 +81,25 @@ class BookingChild(BaseModel):
         orm_mode = True
 
 
+
 class ReviewBase(BaseModel):
     date: date
     rating: int
     description: Optional[str] = None
 
 class ReviewCreate(ReviewBase):
-    parent_id: int
+    pass
 
 class Review(ReviewBase):
     id: int
     parent_id: int
     class Config:
         orm_mode = True
+
+class ReviewWithParent(BaseModel):
+    id: int
+    parent_id: int
+    date: date
+    rating: int
+    description: Optional[str] = None
+    first_name: Optional[str] = None

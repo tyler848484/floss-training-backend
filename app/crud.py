@@ -89,19 +89,20 @@ def get_bookings_by_parent(db: Session, parent_id: int) -> List[models.Booking]:
 def get_bookings_by_session(db: Session, session_id: int) -> List[models.Booking]:
     return db.query(models.Booking).filter(models.Booking.session_id == session_id).all()
 
-def create_booking(db: Session, booking: schemas.BookingCreate) -> models.Booking:
+def create_booking(db: Session, booking: schemas.BookingCreate, parent_id: int) -> models.Booking:
     db_booking = models.Booking(
-        parent_id=booking.parent_id,
+        parent_id=parent_id,
         session_id=booking.session_id,
         price=booking.price,
         num_of_kids=booking.num_of_kids,
         paid=booking.paid,
+        location=booking.location,
+        description=booking.description
     )
     db.add(db_booking)
     db.commit()
     db.refresh(db_booking)
 
-    # Handle BookingChild relations
     for child_id in booking.child_ids:
         booking_child = models.BookingChild(
             booking_id=db_booking.id,
@@ -109,6 +110,11 @@ def create_booking(db: Session, booking: schemas.BookingCreate) -> models.Bookin
         )
         db.add(booking_child)
     db.commit()
+
+    session = db.query(models.Session).filter(models.Session.id == booking.session_id).first()
+    if session:
+        session.booked = True
+        db.commit()
 
     return db_booking
 
@@ -187,11 +193,24 @@ def get_reviews_by_parent(db: Session, parent_id: int):
     return db.query(models.Review).filter(models.Review.parent_id == parent_id).all()
 
 def get_reviews(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Review).offset(skip).limit(limit).all()
+    reviews = db.query(models.Review).offset(skip).limit(limit).all()
+    result = []
+    for review in reviews:
+        parent = db.query(models.Parent).filter(models.Parent.id == review.parent_id).first()
+        review_dict = {
+            "id": review.id,
+            "parent_id": review.parent_id,
+            "date": review.date,
+            "rating": review.rating,
+            "description": review.description,
+            "first_name": parent.first_name if parent else None
+        }
+        result.append(review_dict)
+    return result
 
-def create_review(db: Session, review: schemas.ReviewCreate) -> models.Review:
+def create_review(db: Session, review: schemas.ReviewCreate, parent_id: int) -> models.Review:
     db_review = models.Review(
-        parent_id=review.parent_id,
+        parent_id=parent_id,
         date=review.date,
         rating=review.rating,
         description=review.description,

@@ -26,15 +26,15 @@ def read_children(db: Session = Depends(get_db), user: dict = Depends(get_curren
 #         raise HTTPException(status_code=404, detail="Child not found")
 #     return db_child
 
-@router.put("/{child_id}", response_model=schemas.Child)
-def update_child(child_id: int, child_update: schemas.ChildCreate, db: Session = Depends(get_db), user: dict = Depends(get_current_parent)):
-    db_child = crud.update_child(db, child_id, child_update)
-    if not db_child:
-        raise HTTPException(status_code=404, detail="Child not found")
-    return db_child
+# @router.put("/{child_id}", response_model=schemas.Child)
+# def update_child(child_id: int, child_update: schemas.ChildCreate, db: Session = Depends(get_db), user: dict = Depends(get_current_parent)):
+#     db_child = crud.update_child(db, child_id, child_update)
+#     if not db_child:
+#         raise HTTPException(status_code=404, detail="Child not found")
+#     return db_child
 
-@router.delete("/{child_id}", status_code=204)
-def delete_child(child_id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_parent)):
-    success = crud.delete_child(db, child_id)
-    if not success:
-        raise HTTPException(status_code=404, detail="Child not found")
+# @router.delete("/{child_id}", status_code=204)
+# def delete_child(child_id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_parent)):
+#     success = crud.delete_child(db, child_id)
+#     if not success:
+#         raise HTTPException(status_code=404, detail="Child not found")

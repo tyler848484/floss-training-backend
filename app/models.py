@@ -52,6 +52,7 @@ class Booking(Base):
     price = Column(Float, nullable=False)
     num_of_kids = Column(Integer, nullable=False)
     location = Column(String, nullable=False)
+    description = Column(Text)
     paid = Column(Boolean, default=False)
 
     parent = relationship("Parent", back_populates="bookings")

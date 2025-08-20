@@ -23,15 +23,15 @@ def read_sessions(session_date: date, db: Session = Depends(get_db)):
 #         raise HTTPException(status_code=404, detail="Session not found")
 #     return db_session
 
-@router.put("/{session_id}", response_model=schemas.Session)
-def update_session(session_id: int, session_update: schemas.SessionCreate, db: Session = Depends(get_db), user: dict = Depends(get_current_parent)):
-    db_session = crud.update_session(db, session_id, session_update)
-    if not db_session:
-        raise HTTPException(status_code=404, detail="Session not found")
-    return db_session
+# @router.put("/{session_id}", response_model=schemas.Session)
+# def update_session(session_id: int, session_update: schemas.SessionCreate, db: Session = Depends(get_db), user: dict = Depends(get_current_parent)):
+#     db_session = crud.update_session(db, session_id, session_update)
+#     if not db_session:
+#         raise HTTPException(status_code=404, detail="Session not found")
+#     return db_session
 
-@router.delete("/{session_id}", status_code=204)
-def delete_session(session_id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_parent)):
-    success = crud.delete_session(db, session_id)
-    if not success:
-        raise HTTPException(status_code=404, detail="Session not found")
+# @router.delete("/{session_id}", status_code=204)
+# def delete_session(session_id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_parent)):
+#     success = crud.delete_session(db, session_id)
+#     if not success:
+#         raise HTTPException(status_code=404, detail="Session not found")

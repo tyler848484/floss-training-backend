@@ -11,6 +11,7 @@ from app.schemas import ParentCreate
 from app.jwt import get_current_parent
 from app.jwt import create_access_token
 from urllib.parse import urlencode
+from fastapi.responses import JSONResponse
 
 # ADMINS = ["tylerfloss@gmail.com", "zachfloss@gmail.com"]
 
@@ -74,6 +75,6 @@ async def auth_callback(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/logout")
 def logout():
-    response = RedirectResponse(url="http://localhost:5173/")
+    response = JSONResponse({"message": "Logged out"})
     response.delete_cookie(key="access_token")
     return response
