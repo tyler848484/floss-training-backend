@@ -28,10 +28,10 @@ def create_parent(db: Session, parent: schemas.ParentCreate) -> models.Parent:
     db.refresh(db_parent)
     return db_parent
 
-def update_parent(db: Session, parent_id: int, parent_update: schemas.ParentUpdate) -> Optional[models.Parent]:
+def update_parent(db: Session, parent_id: int, phone_number: str) -> Optional[models.Parent]:
     db_parent = get_parent(db, parent_id)
     if db_parent:
-        db_parent.phone_number = parent_update.phone_number
+        db_parent.phone_number = phone_number
         db.commit()
         db.refresh(db_parent)
     return db_parent
@@ -68,6 +68,14 @@ def update_child(db: Session, child_id: int, child_update: schemas.ChildCreate) 
         db.refresh(db_child)
     return db_child
 
+def delete_child(db: Session, child_id: int) -> bool:
+    db_child = get_child(db, child_id)
+    if db_child:
+        db.delete(db_child)
+        db.commit()
+        return True
+    return False
+
 
 # ---------- Session CRUD ----------
 
@@ -83,8 +91,38 @@ def get_available_sessions_by_date(db: Session, session_date: date):
 def get_booking(db: Session, booking_id: int) -> Optional[models.Booking]:
     return db.query(models.Booking).filter(models.Booking.id == booking_id).first()
 
-def get_bookings_by_parent(db: Session, parent_id: int) -> List[models.Booking]:
-    return db.query(models.Booking).filter(models.Booking.parent_id == parent_id).all()
+def get_bookings_by_parent(db: Session, parent_id: int) -> List[schemas.BookingSummary]:
+    bookings = db.query(models.Booking).filter(models.Booking.parent_id == parent_id).all()
+    result = []
+    for booking in bookings:
+        session = db.query(models.Session).filter(models.Session.id == booking.session_id).first()
+        # Get children for this booking
+        booking_children = db.query(models.BookingChild).filter(models.BookingChild.booking_id == booking.id).all()
+        children = []
+        for bc in booking_children:
+            child = db.query(models.Child).filter(models.Child.id == bc.child_id).first()
+            if child:
+                children.append({
+                    "id": child.id,
+                    "first_name": child.first_name,
+                    "last_name": child.last_name,
+                    "birth_year": child.birth_year,
+                    "experience": child.experience,
+                    "parent_id": child.parent_id
+                })
+        booking_dict = {
+            "id": booking.id,
+            "description": booking.description,
+            "location": booking.location,
+            "date": session.date.isoformat() if session else None,
+            "start_time": session.start_time.strftime('%H:%M') if session else None,
+            "end_time": session.end_time.strftime('%H:%M') if session else None,
+            "paid": booking.paid,
+            "price": booking.price,
+            "children": children
+        }
+        result.append(booking_dict)
+    return result
 
 def get_bookings_by_session(db: Session, session_id: int) -> List[models.Booking]:
     return db.query(models.Booking).filter(models.Booking.session_id == session_id).all()
@@ -118,22 +156,18 @@ def create_booking(db: Session, booking: schemas.BookingCreate, parent_id: int) 
 
     return db_booking
 
-def update_booking(db: Session, booking_id: int, booking_update: schemas.BookingCreate) -> Optional[models.Booking]:
+def update_booking(db: Session, booking_id: int, booking_update: schemas.BookingUpdate) -> Optional[models.Booking]:
     db_booking = get_booking(db, booking_id)
     if db_booking:
-        db_booking.parent_id = booking_update.parent_id
-        db_booking.session_id = booking_update.session_id
         db_booking.price = booking_update.price
         db_booking.num_of_kids = booking_update.num_of_kids
-        db_booking.paid = booking_update.paid
+        db_booking.description = booking_update.description
+        db_booking.location = booking_update.location
         db.commit()
         db.refresh(db_booking)
 
-        # Update booking children
-        # First delete existing BookingChild entries
         db.query(models.BookingChild).filter(models.BookingChild.booking_id == booking_id).delete()
         db.commit()
-        # Then add new ones
         for child_id in booking_update.child_ids:
             booking_child = models.BookingChild(
                 booking_id=booking_id,
@@ -147,9 +181,13 @@ def update_booking(db: Session, booking_id: int, booking_update: schemas.Booking
 def delete_booking(db: Session, booking_id: int) -> bool:
     db_booking = get_booking(db, booking_id)
     if db_booking:
-        # Delete BookingChild entries first to avoid FK constraints
         db.query(models.BookingChild).filter(models.BookingChild.booking_id == booking_id).delete()
         db.commit()
+
+        session = db.query(models.Session).filter(models.Session.id == db_booking.session_id).first()
+        if session:
+            session.booked = False
+            db.commit()
 
         db.delete(db_booking)
         db.commit()
@@ -220,11 +258,9 @@ def create_review(db: Session, review: schemas.ReviewCreate, parent_id: int) -> 
     db.refresh(db_review)
     return db_review
 
-def update_review(db: Session, review_id: int, review_update: schemas.ReviewCreate) -> Optional[models.Review]:
+def update_review(db: Session, review_id: int, review_update: schemas.ReviewUpdate) -> Optional[models.Review]:
     db_review = get_review(db, review_id)
     if db_review:
-        db_review.parent_id = review_update.parent_id
-        db_review.date = review_update.date
         db_review.rating = review_update.rating
         db_review.description = review_update.description
         db.commit()

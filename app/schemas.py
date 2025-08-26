@@ -32,6 +32,9 @@ class ParentUpdate(BaseModel):
     phone_number: str
     children: List[ChildCreate]
 
+class ParentUpdatePhone(BaseModel):
+    phone_number: str
+
 class Parent(ParentBase):
     id: int
     class Config:
@@ -73,6 +76,22 @@ class Booking(BookingBase):
     class Config:
         orm_mode = True
 
+class BookingUpdate(BookingBase):
+    child_ids: List[int]
+    description: Optional[str] = None
+    location: str
+
+class BookingSummary(BaseModel):
+    id: int
+    description: Optional[str] = None
+    location: str
+    date: str
+    start_time: str
+    end_time: str
+    paid: bool
+    price: float
+    children: List[Child]
+
 
 class BookingChild(BaseModel):
     booking_id: int
@@ -95,6 +114,10 @@ class Review(ReviewBase):
     parent_id: int
     class Config:
         orm_mode = True
+
+class ReviewUpdate(BaseModel):
+    rating: int
+    description: Optional[str] = None
 
 class ReviewWithParent(BaseModel):
     id: int
