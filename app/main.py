@@ -13,7 +13,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "https://your-production-site.com"],
+    allow_origins=["https://floss-private-soccer-coaching-ui.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

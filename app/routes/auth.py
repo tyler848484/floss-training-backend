@@ -13,8 +13,6 @@ from app.jwt import create_access_token
 from urllib.parse import urlencode
 from fastapi.responses import JSONResponse
 
-# ADMINS = ["tylerfloss@gmail.com", "zachfloss@gmail.com"]
-
 load_dotenv()
 
 router = APIRouter()
@@ -62,7 +60,7 @@ async def auth_callback(request: Request, db: Session = Depends(get_db)):
 
     access_token = create_access_token(data={"sub": str(parent.id), "id": str(parent.id)})
 
-    response = RedirectResponse(url="http://localhost:5173/auth-success")
+    response = RedirectResponse(url="https://floss-private-soccer-coaching-ui.vercel.app/auth-success")
     response.set_cookie(
         key="access_token",
         value=access_token,
