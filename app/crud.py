@@ -96,7 +96,6 @@ def get_bookings_by_parent(db: Session, parent_id: int) -> List[schemas.BookingS
     result = []
     for booking in bookings:
         session = db.query(models.Session).filter(models.Session.id == booking.session_id).first()
-        # Get children for this booking
         booking_children = db.query(models.BookingChild).filter(models.BookingChild.booking_id == booking.id).all()
         children = []
         for bc in booking_children:
@@ -123,9 +122,6 @@ def get_bookings_by_parent(db: Session, parent_id: int) -> List[schemas.BookingS
         }
         result.append(booking_dict)
     return result
-
-def get_bookings_by_session(db: Session, session_id: int) -> List[models.Booking]:
-    return db.query(models.Booking).filter(models.Booking.session_id == session_id).all()
 
 def create_booking(db: Session, booking: schemas.BookingCreate, parent_id: int) -> models.Booking:
     db_booking = models.Booking(
