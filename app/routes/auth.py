@@ -68,6 +68,7 @@ async def auth_callback(request: Request, db: Session = Depends(get_db)):
         secure=True,
         samesite="none",
         path="/",
+        domain="floss-private-soccer-coaching-ui.vercel.app",
         max_age=60*60*24*7
     )
     return response
