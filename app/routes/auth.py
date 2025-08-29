@@ -67,7 +67,6 @@ async def auth_callback(request: Request, db: Session = Depends(get_db)):
         httponly=True,
         secure=True,
         samesite="none",
-        domain="floss-private-soccer-coaching-ui.vercel.app",
         path="/",
         max_age=60*60*24*7
     )
@@ -79,7 +78,6 @@ def logout():
     response.delete_cookie(
         key="access_token",
         path="/",
-        domain="floss-private-soccer-coaching-ui.vercel.app",
         secure=True,
         httponly=True,
         samesite="none"
